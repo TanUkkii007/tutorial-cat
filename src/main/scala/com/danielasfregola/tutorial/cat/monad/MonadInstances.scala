@@ -7,8 +7,24 @@ import com.danielasfregola.tutorial.cat.applicative.ApplicativeInstances._
 
 object MonadInstances {
 
-  implicit val maybeMonad: Monad[Maybe] = ???
+  implicit val maybeMonad: Monad[Maybe] = new Monad[Maybe] {
+    override def flatMap[A, B](boxA: Maybe[A])(f: (A) => Maybe[B]): Maybe[B] = boxA match {
+      case Just(a) =>
+        f(a)
+      case Empty => Empty
+    }
 
-  implicit val zeroOrMoreMonad: Monad[ZeroOrMore] = ???
+    override def pure[A](a: A) = Just(a)
+  }
+
+  implicit val zeroOrMoreMonad: Monad[ZeroOrMore] = new Monad[ZeroOrMore] {
+    override def flatMap[A, B](boxA: ZeroOrMore[A])(f: (A) => ZeroOrMore[B]) = boxA match {
+      case Zero => Zero
+      case OneOrMore(headA, tailA) => f(headA).append(flatMap(tailA)(f))
+
+    }
+
+    override def pure[A](a: A) = OneOrMore(a, Zero)
+  }
 
 }
