@@ -28,7 +28,10 @@ object ApplicativeInstances {
       case OneOrMore(headF, tailF) =>
         boxA match {
           case Zero => Zero
-          case OneOrMore(headA, tailA) => OneOrMore(headF(headA), ap(tailF)(tailA))
+          case OneOrMore(headA, tailA) =>
+            val heads = OneOrMore(headF(headA), ap(pure(headF))(tailA))
+            val tails = ap(tailF)(tailA)
+            heads.append(tails)
         }
     }
   }
